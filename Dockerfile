@@ -4,7 +4,7 @@ ENV GOPROXY https://goproxy.io
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o livego . -ldflags="-w -s"
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -a -installsuffix cgo -o livego . 
 
 FROM alpine:latest
 RUN mkdir -p /app/config && apk add --no-cache tzdata \
