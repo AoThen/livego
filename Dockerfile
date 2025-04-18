@@ -1,13 +1,16 @@
-FROM golang:latest as builder
+FROM golang:alpine as builder
 WORKDIR /app
 ENV GOPROXY https://goproxy.io
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o livego .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o livego . -ldflags="-w -s"
 
 FROM alpine:latest
-RUN mkdir -p /app/config
+RUN mkdir -p /app/config && apk add --no-cache tzdata \
+&& cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime  \
+&& echo Asia/Shanghai > /etc/timezone \
+&& apk del tzdata
 WORKDIR /app
 ENV RTMP_PORT 1935
 ENV HTTP_FLV_PORT 7001
